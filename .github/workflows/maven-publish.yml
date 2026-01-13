@@ -4,13 +4,13 @@ on:
   release:
     types: [created]
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +22,9 @@ jobs:
           java-version: '21'
           server-id: github
           settings-path: ${{ github.workspace }}
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
 
       - name: Build with Maven Wrapper
         run: ./mvnw clean package
