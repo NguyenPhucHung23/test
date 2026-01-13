@@ -7,14 +7,12 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 21 + Maven settings for GitHub Packages
         uses: actions/setup-java@v4
@@ -24,7 +22,6 @@ jobs:
           server-id: github
           settings-path: ${{ github.workspace }}
 
-      # Lấy version từ tag release: v0.0.2 -> 0.0.2
       - name: Set Maven version from release tag
         working-directory: demoo
         run: mvn -q versions:set -DnewVersion=${GITHUB_REF_NAME#v} -DgenerateBackupPoms=false
@@ -33,8 +30,24 @@ jobs:
         working-directory: demoo
         run: mvn -B -U clean package -DskipTests
 
-      - name: Deploy to GitHub Packages (skip tests)
+      - name: Debug - show workspace + pom
+        run: |
+          pwd
+          ls -la
+          ls -la demoo
+          test -f demoo/pom.xml && echo "pom OK" || (echo "pom missing" && exit 1)
+
+      - name: Debug - show settings.xml server id
+        run: |
+          ls -la $GITHUB_WORKSPACE/settings.xml
+          echo "---- check github server id ----"
+          grep -n "<id>github</id>" $GITHUB_WORKSPACE/settings.xml || true
+
+      - name: Deploy to GitHub Packages (forced repo)
         working-directory: demoo
-        run: mvn -B -U deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml
+        run: |
+          mvn -B -U -DskipTests deploy \
+            -s $GITHUB_WORKSPACE/settings.xml \
+            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/NguyenPhucHung/test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
