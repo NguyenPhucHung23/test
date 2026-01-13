@@ -29,6 +29,15 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/NguyenPhucHung/test</url>
+		</repository>
+	</distributionManagement>
+
 	<dependencies>
 		<!-- Web API -->
 		<dependency>
@@ -90,6 +99,7 @@
 			<groupId>org.eclipse.angus</groupId>
 			<artifactId>angus-mail</artifactId>
 		</dependency>
+
 
 
 		<!-- Test -->
