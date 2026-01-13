@@ -30,24 +30,23 @@ jobs:
         working-directory: demoo
         run: mvn -B -U clean package -DskipTests
 
-      - name: Debug - show workspace + pom
-        run: |
-          pwd
-          ls -la
-          ls -la demoo
-          test -f demoo/pom.xml && echo "pom OK" || (echo "pom missing" && exit 1)
-
-      - name: Debug - show settings.xml server id
-        run: |
-          ls -la $GITHUB_WORKSPACE/settings.xml
-          echo "---- check github server id ----"
-          grep -n "<id>github</id>" $GITHUB_WORKSPACE/settings.xml || true
-
-      - name: Deploy to GitHub Packages (forced repo)
+      - name: Verify artifacts exist
         working-directory: demoo
         run: |
-          mvn -B -U -DskipTests deploy \
+          echo "=== list demoo/target ==="
+          ls -la target
+          ls -la target/*.jar || true
+
+      - name: Deploy to GitHub Packages (deploy-file)
+        working-directory: demoo
+        run: |
+          JAR=$(ls -1 target/*.jar | head -n 1)
+          echo "Deploying: $JAR"
+          mvn -B -U -DskipTests deploy:deploy-file \
             -s $GITHUB_WORKSPACE/settings.xml \
-            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/NguyenPhucHung/test
+            -DrepositoryId=github \
+            -Durl=https://maven.pkg.github.com/NguyenPhucHung/test \
+            -DpomFile=pom.xml \
+            -Dfile="$JAR"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
