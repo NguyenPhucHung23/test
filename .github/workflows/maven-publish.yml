@@ -45,7 +45,7 @@ jobs:
           mvn -B -U -DskipTests deploy:deploy-file \
             -s $GITHUB_WORKSPACE/settings.xml \
             -DrepositoryId=github \
-            -Durl=https://maven.pkg.github.com/NguyenPhucHung/test \
+            -Durl=https://maven.pkg.github.com/NguyenPhucHung23/test \
             -DpomFile=pom.xml \
             -Dfile="$JAR"
         env:
